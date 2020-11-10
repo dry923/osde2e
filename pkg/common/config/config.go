@@ -353,9 +353,13 @@ var Scale = struct {
 	// WorkloadsRepositoryBranch is the branch of the git repository to use.
 	// Env: WORKLOADS_REPO_BRANCH
 	WorkloadsRepositoryBranch string
+        E2eBenchmarkingRepository string
+        E2eBenchmarkingRepositoryBranch string
 }{
 	WorkloadsRepository:       "scale.workloadsRepository",
 	WorkloadsRepositoryBranch: "scale.workloadsRepositoryBranch",
+	E2eBenchmarkingRepository:       "scale.e2eBenchmarkingRepository",
+	E2eBenchmarkingRepositoryBranch: "scale.e2eBenchmarkingRepositoryBranch",
 }
 
 // Prometheus config keys.
@@ -559,6 +563,12 @@ func init() {
 
 	viper.SetDefault(Scale.WorkloadsRepositoryBranch, "master")
 	viper.BindEnv(Scale.WorkloadsRepositoryBranch, "WORKLOADS_REPO_BRANCH")
+	
+        viper.SetDefault(Scale.E2eBenchmarkingRepository, "https://github.com/cloud-bulldozer/e2e-benchmarking.git")
+	viper.BindEnv(Scale.E2eBenchmarkingRepository, "E2E_BENCHMARKING_REPO")
+
+	viper.SetDefault(Scale.E2eBenchmarkingRepositoryBranch, "master")
+	viper.BindEnv(Scale.E2eBenchmarkingRepositoryBranch, "E2E_BENCHMARKING_REPO_BRANCH")
 
 	// ----- Prometheus -----
 	viper.BindEnv(Prometheus.Address, "PROMETHEUS_ADDRESS")

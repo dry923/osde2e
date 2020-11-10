@@ -1,27 +1,25 @@
 set -o pipefail
 set -eux
 
-cd "{{ .WorkloadsPath }}"
+cd "{{ .WorkloadsPath}}"
 
-# setup inventory
+# setup kubeconfig
 set +x
 mkdir -p ~/.kube
 echo -e "{{ .Kubeconfig }}\n" > ~/.kube/config
 
-oc get project scale-ci-tooling && oc delete project scale-ci-tooling --wait
-oc create -f workloads/files/scale-ci-tooling-ns.yml
-oc create serviceaccount useroot -n scale-ci-tooling
-oc adm policy add-scc-to-user privileged -z useroot -n scale-ci-tooling
-cp workloads/inventory.example inventory
-echo "localhost ansible_connection=local" >> inventory
-mkdir -p ~/.ssh
-ssh-keygen -f ~/.ssh/id_rsa -q -N ""
-chmod 600 ~/.ssh/*
-set -x
 
-export JOB_COMPLETION_POLL_ATTEMPTS="720"
+export ES_SERVER=http://snafu:ripsaw@ec2-54-201-210-248.us-west-2.compute.amazonaws.com
+export ES_PORT=9200
+export QPS=20
+export BURST=20
+export METRICS_PROFILE=metrics-aggregated.yaml
+export JOB_ITERATIONS=10
+export LOG_STREAMING=true
+export CLEANUP_WHEN_FINISH=true
+export CLEANUP=true
 
-time ansible-playbook -vv -i inventory {{ .PlaybookPath }}
+./run_clusterdensity_test_fromgit.sh
 
 SUCCESS=$?
 

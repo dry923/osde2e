@@ -22,8 +22,11 @@ const (
 	// image used for ansible commands
 	ansibleImage = "quay.io/openshift/origin-ansible:v3.11"
 
-	// WorkloadsPath is the location that the openshift-scale workloads git repo will be cloned on the runner pod
-	WorkloadsPath = "/src/github.com/openshift-scale/workloads"
+        // Toolbox image that contains required packages to run e2e-benchmark repo tests
+        e2eToolboxImage = "quay.io/cloud-bulldozer/e2e-toolbox:latest"
+
+	// WorkloadsPath is the location that the cloud-bulldozer e2e-benchmarkings git repo will be cloned on the runner pod
+	WorkloadsPath = "/src/github.com/cloud-bulldozer/e2e-benchmarking"
 )
 
 var (
@@ -64,24 +67,24 @@ func (sCfg scaleRunnerConfig) Runner(h *helper.H) *runner.Runner {
 		// scaleRepos are the default repos cloned with scale tests.
 		scaleRepos = runner.Repos{
 			{
-				Name:      "workloads",
-				URL:       viper.GetString(config.Scale.WorkloadsRepository),
+				Name:      "e2e-benchmarking",
+				URL:       viper.GetString(config.Scale.E2eBenchmarkingRepository),
 				MountPath: WorkloadsPath,
-				Branch:    viper.GetString(config.Scale.WorkloadsRepositoryBranch),
+				Branch:    viper.GetString(config.Scale.E2eBenchmarkingRepositoryBranch),
 			},
 		}
 	})
 
 	// template command from config
+	sCfg.WorkloadsPath = WorkloadsPath + "/workloads/" + sCfg.Name
 	sCfg.Name = "scale-" + sCfg.Name
-	sCfg.WorkloadsPath = WorkloadsPath
 	sCfg.Kubeconfig = viper.GetString(config.Kubeconfig.Contents)
 	cmd := sCfg.cmd()
 
 	// configure runner for scale testing
 	runner := h.Runner(cmd)
 	runner.Name = sCfg.Name
-	runner.ImageName = ansibleImage
+	runner.ImageName = e2eToolboxImage
 	runner.Repos = scaleRepos
 	runner.SkipLogsFromPod = true
 
